@@ -16,6 +16,10 @@ def save_data(df):
     df.to_csv('aggregated_replays_data.csv', index=False)
     st.success("Changes saved successfully!")
 
+# Normalize strings: lower case and strip whitespace
+def normalize_string(s):
+    return str(s).strip().lower()
+
 # Rename columns for better readability
 def rename_columns(df):
     return df.rename(columns=column_labels)
@@ -25,13 +29,30 @@ def display_player_data():
     # Load the data
     df = load_data()
 
+    # Debugging: Show the raw names from the CSV to check for hidden characters
+    st.write("Raw player names from CSV:")
+    st.dataframe(df[['NAME']])
+
+    # Normalize player names in the dataframe
+    df['NAME'] = df['NAME'].apply(normalize_string)
+
     # Add player selection dropdown based on aliases
     player_name = st.selectbox('Select a Player', list(aliases.keys()))
 
+    # Get the aliases for the selected player and normalize them
+    player_aliases = [normalize_string(alias) for alias in aliases[player_name]]
+
+    # Debugging: Print selected player and aliases
+    st.write(f"Selected player: {player_name}")
+    st.write(f"Player aliases: {player_aliases}")
+
     # Filter data based on selected player aliases
-    player_aliases = aliases[player_name]
     player_df = df[df['NAME'].isin(player_aliases)]
-    
+
+    # Debugging: Show filtered data
+    st.write(f"Filtered data for {player_name}:")
+    st.dataframe(player_df)
+
     # Check if player data exists
     if player_df.empty:
         st.write(f"No data found for player {player_name}")
@@ -49,7 +70,7 @@ def display_player_data():
     gb.configure_side_bar()  # Enable sidebar filters
     gb.configure_default_column(editable=True, filter=True, resizable=True)  # Columns are editable and filterable
     gb.configure_grid_options(domLayout='autoHeight')  # Automatically adjusts height of the grid
-    
+
     # Set custom column widths if needed (Optional)
     gb.configure_columns(
         ['Kills', 'Deaths', 'Assists'], 
