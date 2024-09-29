@@ -20,37 +20,72 @@ def save_data(df):
 def normalize_string(s):
     return str(s).strip().lower()
 
-# Rename columns for better readability
-def rename_columns(df):
-    return df.rename(columns=column_labels)
-
-# Convert gameDuration from milliseconds to hours:minutes:seconds format
+# Convert Game Length (which is in milliseconds) to minutes:seconds format without leading zeros (for display)
 def convert_duration(ms):
+    if pd.isna(ms):
+        return "00:00"
+    ms = float(ms)  # Ensure ms is numeric
     seconds = ms // 1000
     minutes = (seconds // 60) % 60
     hours = seconds // 3600
     seconds = seconds % 60
-    return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}"
+    if hours > 0:
+        return f"{int(hours)}:{int(minutes):02d}:{int(seconds):02d}"
+    else:
+        return f"{int(minutes)}:{int(seconds):02d}"
+
+# Convert Game Length from milliseconds to total minutes (for calculations)
+def get_total_minutes(ms):
+    try:
+        ms = float(ms)  # Ensure the value is numeric
+        return ms / 1000 / 60 if pd.notna(ms) else 0
+    except ValueError:
+        return 0  # If ms is not a valid number, return 0
+
+# Calculate KDA and CS per minute with rounding and handling zero values
+def calculate_kda_and_cs(df):
+    kills_col = 'Kills'  # Confirmed key from your provided list
+    deaths_col = 'Deaths'  # Confirmed key
+    assists_col = 'Assists'  # Confirmed key
+    cs_col = 'Missions_CreepScore'  # Confirmed key
+    game_duration_numeric_col = 'Game Length Numeric'  # Internal numeric column for game length in minutes
+
+    # Calculate KDA: (Kills + Assists) / Deaths (if Deaths > 0)
+    df['KDA'] = df.apply(lambda row: round((row[kills_col] + row[assists_col]) / row[deaths_col], 2) if row[deaths_col] > 0 else round((row[kills_col] + row[assists_col]), 2), axis=1)
+
+    # Calculate CS per minute: Missions_CreepScore / game length (in minutes)
+    def calculate_cs_per_minute(row):
+        cs = row[cs_col]
+        game_length_minutes = get_total_minutes(row[game_duration_numeric_col])
+
+        # Debug: Print the values being used in the calculation
+        print(f"CS: {cs}, Game Length (minutes): {game_length_minutes}, Raw gameDuration value: {row[game_duration_numeric_col]}")
+
+        if game_length_minutes > 0:
+            cs_per_minute = round(cs / game_length_minutes, 1)
+        else:
+            cs_per_minute = 0
+
+        # Debug: Print the result of the calculation
+        print(f"CS per Minute: {cs_per_minute}")
+        return cs_per_minute
+
+    df['CS_per_Minute'] = df.apply(calculate_cs_per_minute, axis=1)
+
+    return df
+
+
+# Rename columns for better readability
+def rename_columns(df):
+    return df.rename(columns=column_labels)
 
 # Display editable table for player data
 def display_player_data():
     # Load the data
     df = load_data()
 
-    # Debug: Show the actual player names in the CSV after normalization
-    print("Before normalization, player names in the CSV:")
-    print(df[['NAME']].drop_duplicates())  # Output unique names in the CSV
-
     # Normalize player names in the dataframe
     df['NAME'] = df['NAME'].apply(normalize_string)
-
-    # Debug: After normalization, print unique player names in the CSV
-    print("After normalization, player names in the CSV:")
-    print(df[['NAME']].drop_duplicates())
-
-    # Convert gameDuration to hours:minutes:seconds
-    if 'gameDuration' in df.columns:
-        df['gameDuration'] = df['gameDuration'].apply(convert_duration)
 
     # Add player selection dropdown based on aliases
     player_name = st.selectbox('Select a Player', list(aliases.keys()))
@@ -58,29 +93,45 @@ def display_player_data():
     # Get the aliases for the selected player and normalize them
     player_aliases = [normalize_string(alias) for alias in aliases[player_name]]
 
-    # Debug: Print selected player and their aliases
-    print(f"Selected player: {player_name}")
-    print(f"Player aliases: {player_aliases}")
-
     # Filter data based on selected player aliases
     player_df = df[df['NAME'].isin(player_aliases)]
-
-    # Debug: Check if any of the aliases are in the DataFrame
-    print("Checking if aliases exist in the CSV...")
-    for alias in player_aliases:
-        if alias in df['NAME'].values:
-            print(f"Alias '{alias}' found in the data!")
-        else:
-            print(f"Alias '{alias}' NOT found in the data.")
 
     # Check if player data exists
     if player_df.empty:
         st.write(f"No data found for player {player_name}")
-        print(f"No data found for player {player_name}")
         return
 
     # Rename columns for better readability
     player_df = rename_columns(player_df)
+
+    # Convert 'Game Length' from ms to both a readable format and numeric format for calculations
+    if 'Game Length' in player_df.columns:
+        # Convert 'Game Length' to numeric values (for calculations)
+        player_df['Game Length Numeric'] = pd.to_numeric(player_df['Game Length'], errors='coerce')
+
+        # Debug: Print converted values
+        print("Converted 'Game Length' to numeric values (for CS per minute):")
+        print(player_df['Game Length Numeric'].head())
+
+        # Convert 'Game Length' to human-readable format
+        player_df['Game Length'] = player_df['Game Length Numeric'].apply(convert_duration)
+    else:
+        st.write("No 'Game Length' column found for conversion!")
+
+    # Calculate KDA and CS per minute
+    player_df = calculate_kda_and_cs(player_df)
+
+    # Ensure that KDA and CS_per_Minute are in the column order after calculation
+    if 'KDA' not in player_df.columns:
+        player_df['KDA'] = 0  # Default value if the column doesn't exist
+    if 'CS_per_Minute' not in player_df.columns:
+        player_df['CS_per_Minute'] = 0  # Default value if the column doesn't exist
+
+    # Add calculated columns to the column order if not already there
+    if 'KDA' not in column_order:
+        column_order.append('KDA')
+    if 'CS_per_Minute' not in column_order:
+        column_order.append('CS_per_Minute')
 
     # Rearrange columns according to predefined order
     player_df = player_df[column_order]
@@ -94,7 +145,7 @@ def display_player_data():
 
     # Set custom column widths if needed (Optional)
     gb.configure_columns(
-        ['Kills', 'Deaths', 'Assists'], 
+        ['Kills', 'Deaths', 'Assists', 'KDA', 'CS_per_Minute'], 
         width=80  # Example: Adjust width of these columns
     )
 
