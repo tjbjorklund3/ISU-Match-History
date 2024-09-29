@@ -29,12 +29,16 @@ def display_player_data():
     # Load the data
     df = load_data()
 
+    # Debug: Show the actual player names in the CSV after normalization
+    print("Before normalization, player names in the CSV:")
+    print(df[['NAME']].drop_duplicates())  # Output unique names in the CSV
+
     # Normalize player names in the dataframe
     df['NAME'] = df['NAME'].apply(normalize_string)
 
-    # Debug: Show the actual player names in the CSV after normalization
-    st.write("Player names in the CSV after normalization:")
-    st.dataframe(df[['NAME']].drop_duplicates())  # Display unique names for clarity
+    # Debug: After normalization, print unique player names in the CSV
+    print("After normalization, player names in the CSV:")
+    print(df[['NAME']].drop_duplicates())
 
     # Add player selection dropdown based on aliases
     player_name = st.selectbox('Select a Player', list(aliases.keys()))
@@ -42,28 +46,25 @@ def display_player_data():
     # Get the aliases for the selected player and normalize them
     player_aliases = [normalize_string(alias) for alias in aliases[player_name]]
 
-    # Debug: Print selected player and aliases
-    st.write(f"Selected player: {player_name}")
-    st.write(f"Player aliases: {player_aliases}")
-
-    # Debug: Check if any of the aliases are in the DataFrame
-    st.write("Checking if aliases exist in the CSV...")
-    for alias in player_aliases:
-        if alias in df['NAME'].values:
-            st.write(f"Alias '{alias}' found in the data!")
-        else:
-            st.write(f"Alias '{alias}' NOT found in the data.")
+    # Debug: Print selected player and their aliases
+    print(f"Selected player: {player_name}")
+    print(f"Player aliases: {player_aliases}")
 
     # Filter data based on selected player aliases
     player_df = df[df['NAME'].isin(player_aliases)]
 
-    # Debugging: Show filtered data
-    st.write(f"Filtered data for {player_name}:")
-    st.dataframe(player_df)
+    # Debug: Check if any of the aliases are in the DataFrame
+    print("Checking if aliases exist in the CSV...")
+    for alias in player_aliases:
+        if alias in df['NAME'].values:
+            print(f"Alias '{alias}' found in the data!")
+        else:
+            print(f"Alias '{alias}' NOT found in the data.")
 
     # Check if player data exists
     if player_df.empty:
         st.write(f"No data found for player {player_name}")
+        print(f"No data found for player {player_name}")
         return
 
     # Rename columns for better readability
@@ -96,8 +97,8 @@ def display_player_data():
         fit_columns_on_grid_load=True,
         theme="streamlit",  # Theme: balham, material, etc.
         enable_enterprise_modules=True,
-        height=200,  # Adjust height for better user experience
-        width='100%',
+        height=1500,  # Adjust height for better user experience
+        width='200%',
     )
 
     # Get the updated data from the grid
@@ -106,3 +107,7 @@ def display_player_data():
     # Display a save button to store the edited data back to the CSV
     if st.button("Save Changes"):
         save_data(updated_df)
+
+    # Debug: Display a confirmation message in PowerShell after saving
+    print(f"Data for {player_name} saved successfully!")
+
