@@ -29,12 +29,12 @@ def display_player_data():
     # Load the data
     df = load_data()
 
-    # Debugging: Show the raw names from the CSV to check for hidden characters
-    st.write("Raw player names from CSV:")
-    st.dataframe(df[['NAME']])
-
     # Normalize player names in the dataframe
     df['NAME'] = df['NAME'].apply(normalize_string)
+
+    # Debug: Show the actual player names in the CSV after normalization
+    st.write("Player names in the CSV after normalization:")
+    st.dataframe(df[['NAME']].drop_duplicates())  # Display unique names for clarity
 
     # Add player selection dropdown based on aliases
     player_name = st.selectbox('Select a Player', list(aliases.keys()))
@@ -42,9 +42,17 @@ def display_player_data():
     # Get the aliases for the selected player and normalize them
     player_aliases = [normalize_string(alias) for alias in aliases[player_name]]
 
-    # Debugging: Print selected player and aliases
+    # Debug: Print selected player and aliases
     st.write(f"Selected player: {player_name}")
     st.write(f"Player aliases: {player_aliases}")
+
+    # Debug: Check if any of the aliases are in the DataFrame
+    st.write("Checking if aliases exist in the CSV...")
+    for alias in player_aliases:
+        if alias in df['NAME'].values:
+            st.write(f"Alias '{alias}' found in the data!")
+        else:
+            st.write(f"Alias '{alias}' NOT found in the data.")
 
     # Filter data based on selected player aliases
     player_df = df[df['NAME'].isin(player_aliases)]
@@ -88,8 +96,8 @@ def display_player_data():
         fit_columns_on_grid_load=True,
         theme="streamlit",  # Theme: balham, material, etc.
         enable_enterprise_modules=True,
-        height=1500,  # Adjust height for better user experience
-        width='200%',
+        height=200,  # Adjust height for better user experience
+        width='100%',
     )
 
     # Get the updated data from the grid
