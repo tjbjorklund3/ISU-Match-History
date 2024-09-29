@@ -24,6 +24,14 @@ def normalize_string(s):
 def rename_columns(df):
     return df.rename(columns=column_labels)
 
+# Convert gameDuration from milliseconds to hours:minutes:seconds format
+def convert_duration(ms):
+    seconds = ms // 1000
+    minutes = (seconds // 60) % 60
+    hours = seconds // 3600
+    seconds = seconds % 60
+    return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}"
+
 # Display editable table for player data
 def display_player_data():
     # Load the data
@@ -39,6 +47,10 @@ def display_player_data():
     # Debug: After normalization, print unique player names in the CSV
     print("After normalization, player names in the CSV:")
     print(df[['NAME']].drop_duplicates())
+
+    # Convert gameDuration to hours:minutes:seconds
+    if 'gameDuration' in df.columns:
+        df['gameDuration'] = df['gameDuration'].apply(convert_duration)
 
     # Add player selection dropdown based on aliases
     player_name = st.selectbox('Select a Player', list(aliases.keys()))
@@ -110,4 +122,3 @@ def display_player_data():
 
     # Debug: Display a confirmation message in PowerShell after saving
     print(f"Data for {player_name} saved successfully!")
-
