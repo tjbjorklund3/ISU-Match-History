@@ -1,13 +1,20 @@
 import streamlit as st
-import player_data
+import calculate_stats
+import player_data  # A new file for player data page
 
+# Main function to handle navigation between pages
 def main():
-    st.title("🚀 PCL Player Stats Dashboard - TESTING CHANGES 🚀")
+    st.title("League of Legends Dashboard")
 
-    st.write("### This is a big test to ensure changes are being reflected on the live deployment. If you see this message, it means the changes are working!")
+    # Use a sidebar to select the page
+    page = st.sidebar.selectbox("Select a page", ["Player Data", "PCL Champion Kills"])
 
-    # Call the function to display the player data
-    player_data.display_player_data()  # Player Data page
+    # Navigate based on the selected page
+    if page == "PCL Champion Kills":
+        calculate_stats.display_pcl_champions_and_kills()  # The original PCL stats page
+    elif page == "Player Data":
+        player_data.display_player_data()  # New Player Data page
+
 
 if __name__ == "__main__":
     main()

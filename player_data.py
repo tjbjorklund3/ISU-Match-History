@@ -97,7 +97,7 @@ def display_player_data():
         fit_columns_on_grid_load=True,
         theme="streamlit",  # Theme: balham, material, etc.
         enable_enterprise_modules=True,
-        height=1500,  # Adjust height for better user experience
+        height=2000,  # Adjust height for better user experience
         width='200%',
     )
 
