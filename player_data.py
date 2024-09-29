@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from st_aggrid import AgGrid, GridUpdateMode, DataReturnMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
+from st_aggrid import JsCode  # For custom JS code injection
 from aliases import aliases  # Import aliases for players
 from player_data_labels import column_labels, column_order  # Import labels and column order
 
@@ -20,11 +21,10 @@ def save_data(df):
 def normalize_string(s):
     return str(s).strip().lower()
 
-# Convert Game Length (which is in milliseconds) to minutes:seconds format without leading zeros (for display)
+# Convert gameDuration from milliseconds to minutes:seconds format without leading zeros
 def convert_duration(ms):
     if pd.isna(ms):
         return "00:00"
-    ms = float(ms)  # Ensure ms is numeric
     seconds = ms // 1000
     minutes = (seconds // 60) % 60
     hours = seconds // 3600
@@ -34,46 +34,25 @@ def convert_duration(ms):
     else:
         return f"{int(minutes)}:{int(seconds):02d}"
 
-# Convert Game Length from milliseconds to total minutes (for calculations)
+# Convert gameDuration from milliseconds to total minutes
 def get_total_minutes(ms):
-    try:
-        ms = float(ms)  # Ensure the value is numeric
-        return ms / 1000 / 60 if pd.notna(ms) else 0
-    except ValueError:
-        return 0  # If ms is not a valid number, return 0
+    return ms / 1000 / 60 if pd.notna(ms) else 0
 
-# Calculate KDA and CS per minute with rounding and handling zero values
+# Calculate KDA and CS per minute
 def calculate_kda_and_cs(df):
     kills_col = 'Kills'  # Confirmed key from your provided list
-    deaths_col = 'Deaths'  # Confirmed key
-    assists_col = 'Assists'  # Confirmed key
+    deaths_col = 'Deaths'       # Confirmed key
+    assists_col = 'Assists'         # Confirmed key
     cs_col = 'Missions_CreepScore'  # Confirmed key
-    game_duration_numeric_col = 'Game Length Numeric'  # Internal numeric column for game length in minutes
+    game_duration_col = 'Game Length'  # Confirmed key
 
     # Calculate KDA: (Kills + Assists) / Deaths (if Deaths > 0)
-    df['KDA'] = df.apply(lambda row: round((row[kills_col] + row[assists_col]) / row[deaths_col], 2) if row[deaths_col] > 0 else round((row[kills_col] + row[assists_col]), 2), axis=1)
+    df['KDA'] = df.apply(lambda row: round((row[kills_col] + row[assists_col]) / row[deaths_col], 2) if row[deaths_col] > 0 else (row[kills_col] + row[assists_col]), axis=1)
 
     # Calculate CS per minute: Missions_CreepScore / game length (in minutes)
-    def calculate_cs_per_minute(row):
-        cs = row[cs_col]
-        game_length_minutes = get_total_minutes(row[game_duration_numeric_col])
-
-        # Debug: Print the values being used in the calculation
-        print(f"CS: {cs}, Game Length (minutes): {game_length_minutes}, Raw gameDuration value: {row[game_duration_numeric_col]}")
-
-        if game_length_minutes > 0:
-            cs_per_minute = round(cs / game_length_minutes, 1)
-        else:
-            cs_per_minute = 0
-
-        # Debug: Print the result of the calculation
-        print(f"CS per Minute: {cs_per_minute}")
-        return cs_per_minute
-
-    df['CS_per_Minute'] = df.apply(calculate_cs_per_minute, axis=1)
+    df['CSPM'] = df.apply(lambda row: round(row[cs_col] / get_total_minutes(row[game_duration_col]), 1) if get_total_minutes(row[game_duration_col]) > 0 else 0, axis=1)
 
     return df
-
 
 # Rename columns for better readability
 def rename_columns(df):
@@ -104,37 +83,38 @@ def display_player_data():
     # Rename columns for better readability
     player_df = rename_columns(player_df)
 
-    # Convert 'Game Length' from ms to both a readable format and numeric format for calculations
-    if 'Game Length' in player_df.columns:
-        # Convert 'Game Length' to numeric values (for calculations)
-        player_df['Game Length Numeric'] = pd.to_numeric(player_df['Game Length'], errors='coerce')
-
-        # Debug: Print converted values
-        print("Converted 'Game Length' to numeric values (for CS per minute):")
-        print(player_df['Game Length Numeric'].head())
-
-        # Convert 'Game Length' to human-readable format
-        player_df['Game Length'] = player_df['Game Length Numeric'].apply(convert_duration)
-    else:
-        st.write("No 'Game Length' column found for conversion!")
-
     # Calculate KDA and CS per minute
     player_df = calculate_kda_and_cs(player_df)
 
-    # Ensure that KDA and CS_per_Minute are in the column order after calculation
-    if 'KDA' not in player_df.columns:
-        player_df['KDA'] = 0  # Default value if the column doesn't exist
-    if 'CS_per_Minute' not in player_df.columns:
-        player_df['CS_per_Minute'] = 0  # Default value if the column doesn't exist
+    # Convert game duration from ms to a readable format
+    if 'Game Length' in player_df.columns:
+        player_df['Game Length'] = player_df['Game Length'].apply(convert_duration)
 
-    # Add calculated columns to the column order if not already there
+    # Ensure that KDA and CS_per_Minute (CSPM) are in the column order after calculation
     if 'KDA' not in column_order:
         column_order.append('KDA')
-    if 'CS_per_Minute' not in column_order:
-        column_order.append('CS_per_Minute')
+    if 'CSPM' not in column_order:
+        column_order.append('CSPM')
+    if 'WIN' not in column_order:
+        column_order.append('WIN')
+    if 'Match ID' in column_order:
+        column_order.remove('Match ID')
+        column_order.append('Match ID')
 
-    # Rearrange columns according to predefined order
+    # Reorder columns as per the new column_order
     player_df = player_df[column_order]
+
+    # Inject custom JavaScript code for row coloring based on 'WIN' column using hex color codes
+    cellStyle = JsCode("""
+        function(params) {
+            if (params.data.WIN == 'Win') {
+                return {'backgroundColor': '#b6e7a2'};  // Custom light green hex color
+            } else if (params.data.WIN == 'Fail') {
+                return {'backgroundColor': '#f08080'};  // Custom light red hex color
+            }
+            return {};
+        }
+    """)
 
     # Configure grid options for AgGrid
     gb = GridOptionsBuilder.from_dataframe(player_df)
@@ -145,11 +125,16 @@ def display_player_data():
 
     # Set custom column widths if needed (Optional)
     gb.configure_columns(
-        ['Kills', 'Deaths', 'Assists', 'KDA', 'CS_per_Minute'], 
+        ['Kills', 'Deaths', 'Assists', 'KDA', 'CSPM', 'Gold'], 
         width=80  # Example: Adjust width of these columns
     )
 
+    # Fit all columns except "Player" and "Match ID"
+    gb.configure_columns(['Player', 'Match ID'], width=60)
+
+    # Apply the custom cell style for row coloring
     gridOptions = gb.build()
+    gridOptions['defaultColDef']['cellStyle'] = cellStyle
 
     # Display the editable table using AgGrid
     grid_response = AgGrid(
@@ -159,6 +144,7 @@ def display_player_data():
         data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
         fit_columns_on_grid_load=True,
         theme="streamlit",  # Theme: balham, material, etc.
+        allow_unsafe_jscode=True,  # Allow JavaScript code execution
         enable_enterprise_modules=True,
         height=2000,  # Adjust height for better user experience
         width='200%',

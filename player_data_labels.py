@@ -8,18 +8,27 @@ column_labels = {
     'NAME': 'Player',
     'SKIN': 'Champion',
     'TEAM_POSITION': 'Position',
+    'WIN': 'WIN',  # Keep this as WIN for conditional formatting
+    'CS_per_Minute': 'CSPM',
+    'GOLD_EARNED': 'Gold',
+    'MAGIC_DAMAGE_DEALT_TO_CHAMPIONS': 'Magic Damage',
+    'PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS': 'Physical Damage',
+    'TRUE_DAMAGE_DEALT_TO_CHAMPIONS': 'True Damage',
     # Add more mappings as necessary
 }
 
 # Order in which columns should be displayed
 column_order = [
-    'Match ID',
-    'Player',
     'Champion',
     'Position',
     'Game Length',
     'Kills',
     'Deaths',
     'Assists',
-    # Add more columns in the desired order
+    'KDA',
+    'CSPM',
+    'Gold',
+    'WIN', 
+    'Player',
+    'Match ID', 
 ]
