@@ -1,6 +1,5 @@
 # Player_Dashboard/player_data.py
 
-# Main orchestrator file that calls everything together
 from Player_Dashboard.data_loading import load_data, save_data, normalize_string
 from Player_Dashboard.data_processing import calculate_kda_and_cs, convert_duration
 from Player_Dashboard.column_mapping import rename_columns, column_order
@@ -9,12 +8,20 @@ from Player_Dashboard.lifetime_stats_cards import display_lifetime_stats_cards  
 import streamlit as st
 from Player_Dashboard.aliases import aliases
 import pandas as pd
+from Player_Dashboard.role_images import role_images  # Import role images from role_images.py
+
+# Helper function to create a tuple with player name and image URL
+def create_dropdown_options():
+    dropdown_options = []
+    for player, image_path in role_images.items():
+        dropdown_options.append((player, image_path))
+    return dropdown_options
 
 def display_player_data():
     # **Refresh Data button placed above the table**
     if st.button("Refresh Data"):
         st.cache_data.clear()  # Clear the cache to force reloading the updated CSV
-        st.experimental_rerun()  # Reload the page
+        st.set_query_params()  # Update the query params without experimental warning
 
     # **Load the data**
     df = load_data()
@@ -34,8 +41,17 @@ def display_player_data():
     # **Normalize player names in the dataframe**
     df['Player'] = df['Player'].apply(normalize_string)
 
-    # **Add player selection dropdown based on aliases**
-    player_name = st.selectbox('Select a Player', list(aliases.keys()))
+    # Create dropdown options with player name and their image URL
+    player_options_with_images = create_dropdown_options()
+
+    # Selectbox to display player names along with icons
+    selected_option = st.selectbox('Select a Player', player_options_with_images, format_func=lambda x: f"{x[0]}")
+
+    # Extract the actual player name
+    player_name, _ = selected_option
+
+    # Display the player's role image above the dropdown
+    ###st.image(selected_option[1], width=50)
 
     # **Get the aliases for the selected player and normalize them**
     player_aliases = [normalize_string(alias) for alias in aliases[player_name]]
