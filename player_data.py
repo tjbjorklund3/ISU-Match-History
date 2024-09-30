@@ -38,25 +38,59 @@ def convert_duration(ms):
 def get_total_minutes(ms):
     return ms / 1000 / 60 if pd.notna(ms) else 0
 
-# Calculate KDA and CS per minute
-def calculate_kda_and_cs(df):
-    kills_col = 'Kills'  # Confirmed key from your provided list
-    deaths_col = 'Deaths'       # Confirmed key
-    assists_col = 'Assists'         # Confirmed key
-    cs_col = 'Missions_CreepScore'  # Confirmed key
-    game_duration_col = 'Game Length'  # Confirmed key
+# Calculate KDA, CSPM, and add Damage Profile proportions
+# Calculate KDA, CSPM, and add Damage Profile proportions
+def calculate_stats(df):
+    kills_col = 'Kills'
+    deaths_col = 'Deaths'
+    assists_col = 'Assists'
+    cs_col = 'Missions_CreepScore'
+    game_duration_col = 'Game Length'
+    magic_dmg_col = 'Magic Damage'
+    physical_dmg_col = 'Physical Damage'
+    true_dmg_col = 'True Damage'
 
     # Calculate KDA: (Kills + Assists) / Deaths (if Deaths > 0)
     df['KDA'] = df.apply(lambda row: round((row[kills_col] + row[assists_col]) / row[deaths_col], 2) if row[deaths_col] > 0 else (row[kills_col] + row[assists_col]), axis=1)
 
-    # Calculate CS per minute: Missions_CreepScore / game length (in minutes)
+    # Calculate CSPM: Missions_CreepScore / game length (in minutes)
     df['CSPM'] = df.apply(lambda row: round(row[cs_col] / get_total_minutes(row[game_duration_col]), 1) if get_total_minutes(row[game_duration_col]) > 0 else 0, axis=1)
 
+    # Ensure damage columns are numeric and handle NaN values
+    df[magic_dmg_col] = pd.to_numeric(df[magic_dmg_col], errors='coerce').fillna(0)
+    df[physical_dmg_col] = pd.to_numeric(df[physical_dmg_col], errors='coerce').fillna(0)
+    df[true_dmg_col] = pd.to_numeric(df[true_dmg_col], errors='coerce').fillna(0)
+
+    # Calculate Damage Profile percentages
+    df['Total_Damage'] = df[magic_dmg_col] + df[physical_dmg_col] + df[true_dmg_col]
+    df['Magic_Damage_Perc'] = df.apply(lambda row: round(row[magic_dmg_col] / row['Total_Damage'], 2) if row['Total_Damage'] > 0 else 0, axis=1)
+    df['Physical_Damage_Perc'] = df.apply(lambda row: round(row[physical_dmg_col] / row['Total_Damage'], 2) if row['Total_Damage'] > 0 else 0, axis=1)
+    df['True_Damage_Perc'] = df.apply(lambda row: round(row[true_dmg_col] / row['Total_Damage'], 2) if row['Total_Damage'] > 0 else 0, axis=1)
+
     return df
+
 
 # Rename columns for better readability
 def rename_columns(df):
     return df.rename(columns=column_labels)
+
+# Hard-coded JavaScript renderer for damage profile bar
+damage_profile_renderer = JsCode("""
+    function(params) {
+        // Hard-code the damage percentages for testing
+        let magicDamage = 20;  // 20%
+        let physicalDamage = 50;  // 50%
+        let trueDamage = 30;  // 30%
+
+        return `<div style='display: flex; height: 100%;'>
+                    <div style='width: ${magicDamage}%; background-color: #3498db;'></div>
+                    <div style='width: ${physicalDamage}%; background-color: #e74c3c;'></div>
+                    <div style='width: ${trueDamage}%; background-color: #f1c40f;'></div>
+                </div>`;
+    }
+""")
+
+
 
 # Display editable table for player data
 def display_player_data():
@@ -83,26 +117,25 @@ def display_player_data():
     # Rename columns for better readability
     player_df = rename_columns(player_df)
 
-    # Calculate KDA and CS per minute
-    player_df = calculate_kda_and_cs(player_df)
+    # Calculate KDA, CSPM, and damage proportions
+    player_df = calculate_stats(player_df)
 
     # Convert game duration from ms to a readable format
     if 'Game Length' in player_df.columns:
         player_df['Game Length'] = player_df['Game Length'].apply(convert_duration)
 
-    # Ensure that KDA and CS_per_Minute (CSPM) are in the column order after calculation
-    if 'KDA' not in column_order:
-        column_order.append('KDA')
-    if 'CSPM' not in column_order:
-        column_order.append('CSPM')
-    if 'WIN' not in column_order:
-        column_order.append('WIN')
-    if 'Match ID' in column_order:
-        column_order.remove('Match ID')
-        column_order.append('Match ID')
+    # Ensure new columns are in the display order
+    if 'KDA' not in player_df.columns:
+        player_df['KDA'] = 0
+    if 'CSPM' not in player_df.columns:
+        player_df['CSPM'] = 0
+    if 'Damage Profile' not in player_df.columns:
+        player_df['Damage Profile'] = ''
+    if 'WIN' not in player_df.columns:
+        player_df['WIN'] = ''
 
     # Reorder columns as per the new column_order
-    player_df = player_df[column_order]
+    player_df = player_df[[col for col in column_order if col in player_df.columns]]
 
     # Inject custom JavaScript code for row coloring based on 'WIN' column using hex color codes
     cellStyle = JsCode("""
@@ -130,7 +163,13 @@ def display_player_data():
     )
 
     # Fit all columns except "Player" and "Match ID"
-    gb.configure_columns(['Player', 'Match ID'], width=60)
+    gb.configure_columns(['Player', 'Match ID'], width=120)
+
+    # Configure the 'Damage Profile' column to use the custom renderer
+    gb.configure_column('Damage Profile', cellRenderer=damage_profile_renderer)
+
+    # Add Damage Profile column with custom renderer
+    gb.configure_column('Damage Profile', cellRenderer=damage_profile_renderer)
 
     # Apply the custom cell style for row coloring
     gridOptions = gb.build()

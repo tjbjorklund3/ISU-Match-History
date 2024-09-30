@@ -14,7 +14,6 @@ column_labels = {
     'MAGIC_DAMAGE_DEALT_TO_CHAMPIONS': 'Magic Damage',
     'PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS': 'Physical Damage',
     'TRUE_DAMAGE_DEALT_TO_CHAMPIONS': 'True Damage',
-    # Add more mappings as necessary
 }
 
 # Order in which columns should be displayed
@@ -28,7 +27,8 @@ column_order = [
     'KDA',
     'CSPM',
     'Gold',
-    'WIN', 
+    'Damage Profile',  # Add the calculated damage profile bar
+    'WIN',
     'Player',
     'Match ID', 
 ]
