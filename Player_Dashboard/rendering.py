@@ -13,7 +13,7 @@ def render_player_data(player_df):
         function(params) {
             if (params.data.WIN == 'Win') {
                 return {'backgroundColor': '#b6e7a2'};  // Custom light green hex color
-            } else if (params.data.WIN == 'Fail') {
+            } else if (params.data.WIN == 'Lose') {
                 return {'backgroundColor': '#f08080'};  // Custom light red hex color
             }
             return {};
@@ -47,6 +47,6 @@ def render_player_data(player_df):
         theme="streamlit",  
         allow_unsafe_jscode=True,  
         enable_enterprise_modules=True,
-        height=2000,
+        height=400,
         width='200%',
     )

@@ -5,7 +5,7 @@ import shutil
 import json
 import time
 from config import ROFL_DIRECTORY, JSON_DIRECTORY, PROCESSED_DIRECTORY
-from ROFL_To_JSON import process_rofl_file
+from ROFL_Upload.ROFL_To_Json import process_rofl_file
 from ROFL_Upload.Add_to_MatchHistory import update_match_history_dataframe
 from ROFL_Upload.utils import fetch_latest_versions  # Ensure correct import of utils
 

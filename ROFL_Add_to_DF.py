@@ -12,7 +12,7 @@ def main():
     # Load the existing DataFrame if it exists, or create a new one if not
     if os.path.exists(aggregated_csv_path):
         final_df = pd.read_csv(aggregated_csv_path)
-        existing_match_ids = set(final_df['matchID'])  # Store existing match IDs for comparison
+        existing_match_ids = set(final_df['matchID'].astype(str))  # Ensure matchID is treated as string for comparison
         print(f"Found {len(existing_match_ids)} existing matches in the DataFrame.")
     else:
         final_df = pd.DataFrame()  # Create an empty DataFrame
@@ -21,7 +21,7 @@ def main():
 
     # Process new JSON files from the JSON directory
     json_files = [file for file in os.listdir(config.JSON_DIRECTORY) if file.endswith('.json')]
-    
+
     if not json_files:
         print("No JSON files found in the JSON directory.")
         return
@@ -34,10 +34,15 @@ def main():
         file_path = os.path.join(config.JSON_DIRECTORY, file)
         df = pd.read_json(file_path)
 
-        # Check if the matchID is already in the DataFrame
-        matchID = df['matchId'][0]  # Assuming matchId is the same for all participants
-        if matchID in existing_match_ids:
-            print(f"Match {matchID} already exists in the DataFrame, skipping...")
+        # Extract matchID and treat it as a string
+        matchID = str(df['matchId'][0])
+
+        # Remove any potential prefix (e.g., "NA1-")
+        matchID_clean = matchID.split('-')[-1]
+
+        # Skip if the matchID is already in the DataFrame
+        if matchID_clean in existing_match_ids:
+            print(f"Match {matchID_clean} already exists in the DataFrame, skipping...")
             continue
 
         # Process participant-level data
@@ -45,18 +50,21 @@ def main():
         for i in range(len(df['participants'])):
             participants.append(pd.Series(df['participants'][i]))
 
+        # Create a DataFrame from participants
         participants_df = pd.DataFrame(participants)
 
-        # Create a DataFrame that includes match info and participant stats
+        # Add matchID, gameDuration, and gameVersion columns to participants DataFrame
         match_df = pd.DataFrame({
-            'matchID': matchID,
+            'matchID': matchID_clean,
             'gameDuration': df['gameDuration'],
-            'gameVersion': df['gameVersion'],
+            'gameVersion': df['gameVersion']
         }).join(participants_df)
 
-        # Append new match data to the list
+        # Debug: Show the structure of the new match data
+        print(f"Processed match {matchID_clean} with {len(participants)} participants.")
+
+        # Append this match data to the new data list
         new_data.append(match_df)
-        print(f"Added new match {matchID} to the DataFrame.")
 
     # Check if there is new data to add
     if new_data:

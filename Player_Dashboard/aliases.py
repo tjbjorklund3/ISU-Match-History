@@ -1,10 +1,11 @@
 aliases = {
     'PCL': ['PCL', 'PieCakeLord'],
-    'Music': ['Music', 'Musicjg', 'METROOOOOO'],  # Make sure this is properly formatted
+    'Music': ['Music', 'Musicjg', 'METROOOOOO'], 
     'Kross': ['Kross', 'Kross1'],
     'Meslo': ['Meslo'],
     'DrewDozer': ['DrewDozer'],
     'Fatihcan': ['Fatihcan'],
-    'Barlo': ['Barlo', 'its barlo'],  # Make sure this is correctly formatted
+    'Maykel': ['Maykel'],
+    'Barlo': ['Barlo', 'its barlo'],
     'Tj': ['Command Attack', 'Wave Control'],
 }

@@ -16,23 +16,25 @@ column_labels = {
     'MAGIC_DAMAGE_DEALT_TO_CHAMPIONS': 'Magic Damage',
     'PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS': 'Physical Damage',
     'TRUE_DAMAGE_DEALT_TO_CHAMPIONS': 'True Damage',
+    'VISION_WARDS_BOUGHT_IN_GAME': 'Control Wards',
     # Add more mappings as necessary
 }
 
 # Order in which columns should be displayed
 column_order = [
     'Champion',
-    'Position',
-    'Game Length',
     'Kills',
     'Deaths',
     'Assists',
     'KDA',
-    'CSPM',
+    'Game Length',
     'Gold',
+    'CSPM',
     'WIN', 
     'Player',
+    'Position',
     'Match ID', 
+    'Control Wards'
 ]
 
 def rename_columns(df):
