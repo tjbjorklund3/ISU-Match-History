@@ -3,7 +3,7 @@
   "gameDuration": "1264455",
   "gameVersion": "14.18.1",
   "EVENT": "Scrims",
-  "PLAYOFFS": true,
+  "PLAYOFFS": false,
   "participants": [
     {
       "ALL_IN_PINGS": "0",
@@ -238,7 +238,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Win",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "4",
@@ -473,7 +473,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Win",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -708,7 +708,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Win",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "1",
@@ -943,7 +943,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Win",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "1",
@@ -1178,7 +1178,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Win",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -1413,7 +1413,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Fail",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -1648,7 +1648,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Fail",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -1883,7 +1883,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Fail",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -2118,7 +2118,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Fail",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -2353,7 +2353,7 @@
       "WAS_SURRENDER_DUE_TO_AFK": "0",
       "WIN": "Fail",
       "EVENT": "Scrims",
-      "PLAYOFFS": true
+      "PLAYOFFS": false
     }
   ]
 }

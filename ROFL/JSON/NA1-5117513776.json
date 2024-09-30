@@ -1,7 +1,9 @@
 {
-  "matchId": "5117513776",
+  "matchId": "NA1-5117513776",
   "gameDuration": "1609787",
   "gameVersion": "14.18.1",
+  "EVENT": "Scrims",
+  "PLAYOFFS": false,
   "participants": [
     {
       "ALL_IN_PINGS": "0",
@@ -234,7 +236,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Win"
+      "WIN": "Win",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -467,7 +471,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Win"
+      "WIN": "Win",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -700,7 +706,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Win"
+      "WIN": "Win",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "3",
@@ -933,7 +941,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Win"
+      "WIN": "Win",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "1",
@@ -1166,7 +1176,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Win"
+      "WIN": "Win",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -1399,7 +1411,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Fail"
+      "WIN": "Fail",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -1632,7 +1646,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Fail"
+      "WIN": "Fail",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -1865,7 +1881,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Fail"
+      "WIN": "Fail",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -2098,7 +2116,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Fail"
+      "WIN": "Fail",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     },
     {
       "ALL_IN_PINGS": "0",
@@ -2331,7 +2351,9 @@
       "WAS_EARLY_SURRENDER_ACCOMPLICE": "0",
       "WAS_LEAVER": "0",
       "WAS_SURRENDER_DUE_TO_AFK": "0",
-      "WIN": "Fail"
+      "WIN": "Fail",
+      "EVENT": "Scrims",
+      "PLAYOFFS": false
     }
   ]
 }
