@@ -30,11 +30,12 @@ column_order = [
     'Game Length',
     'Gold',
     'CSPM',
+    'Control Wards',
     'WIN', 
     'Player',
     'Position',
     'Match ID', 
-    'Control Wards'
+
 ]
 
 def rename_columns(df):

@@ -20,6 +20,12 @@ def load_opponents():
 
     return opponents
 
+# Load events from the new events.json file
+def load_events():
+    with open('ROFL_Upload/events.json', 'r') as f:
+        events_data = json.load(f)
+    return events_data['events']
+
 # Define the function for uploading .rofl files
 def upload_rofl_file():
     st.header("Upload ROFL Files")
@@ -47,6 +53,13 @@ def upload_rofl_file():
                 if st.button("Add New Team"):
                     add_new_team(new_team)
 
+        # Add event selection
+        events = load_events()
+        selected_event = st.selectbox("Select Event", events)
+
+        # Add playoffs checkbox
+        is_playoffs = st.checkbox("Is this match a playoff game?")
+
         # Ensure that the ROFL directory exists
         if not os.path.exists(ROFL_DIRECTORY):
             os.makedirs(ROFL_DIRECTORY)
@@ -60,8 +73,8 @@ def upload_rofl_file():
         # Fetch the latest Riot versions for processing
         latest_versions = fetch_latest_versions()
 
-        # Process the uploaded ROFL file after uploading
-        process_rofl_files(latest_versions)
+        # Process the uploaded ROFL file after uploading, include event and playoffs info
+        process_rofl_files(uploaded_file_path, selected_event, is_playoffs, latest_versions)
 
         # Button to trigger adding data to the DataFrame
         if st.button("Add Processed Files to Match History"):
@@ -99,8 +112,8 @@ def safe_move_file(src, dest, retries=3, delay=1):
 
     return False
 
-# Process any ROFL files in the ROFL_DIRECTORY
-def process_rofl_files(latest_versions):
+# Process any ROFL files in the ROFL_DIRECTORY and include Event and Playoffs
+def process_rofl_files(uploaded_file_path, selected_event, is_playoffs, latest_versions):
     rofl_files = [f for f in os.listdir(ROFL_DIRECTORY) if f.endswith('.rofl')]
 
     for rofl_file in rofl_files:
@@ -112,8 +125,8 @@ def process_rofl_files(latest_versions):
         if not os.path.exists(JSON_DIRECTORY):
             os.makedirs(JSON_DIRECTORY)
 
-        # Process the ROFL file and generate the JSON
-        process_rofl_file(rofl_file_path, json_output_path, match_id, latest_versions)
+        # Process the ROFL file and generate the JSON, including event and playoffs data
+        process_rofl_file(rofl_file_path, json_output_path, match_id, latest_versions, selected_event, is_playoffs)
 
         # Add a small delay before moving the processed file
         time.sleep(1)  # Wait 1 second to ensure file is fully ready to be moved

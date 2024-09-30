@@ -1,4 +1,4 @@
-#ROFL_To_Json.py
+# ROFL_To_Json.py
 
 import json
 import os
@@ -29,7 +29,8 @@ def extract_game_version_from_file(data_str):
         print("No version-like string found in the file.")
         return None
 
-def process_rofl_file(input_file_path, output_file_path, match_id, latest_versions):
+# Updated function to process ROFL file and include EVENT and PLAYOFFS info
+def process_rofl_file(input_file_path, output_file_path, match_id, latest_versions, event, playoffs):
     try:
         print(f'Processing {input_file_path}...')
 
@@ -90,12 +91,19 @@ def process_rofl_file(input_file_path, output_file_path, match_id, latest_versio
         # Convert the statsJson string to Python dictionary
         stats_json = json.loads(stats_json_str)
 
-        # Create the final formatted dictionary
+        # Inject EVENT and PLAYOFFS data into each participant
+        for participant in stats_json:
+            participant["EVENT"] = event
+            participant["PLAYOFFS"] = playoffs
+
+        # Create the final formatted dictionary, adding EVENT and PLAYOFFS to the main structure
         formatted_dict = {
             "matchId": match_id,
             "gameDuration": game_length_value,
             "gameVersion": game_version_value,
-            "participants": stats_json
+            "EVENT": event,  # Added to the main structure
+            "PLAYOFFS": playoffs,  # Added to the main structure
+            "participants": stats_json  # Event and Playoffs will also be included in each participant
         }
 
         # Write the formatted dictionary to the output file in JSON format
